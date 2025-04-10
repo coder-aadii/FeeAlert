@@ -1,0 +1,72 @@
+[
+    {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "feeDueDate": "2025-03-30",
+        "membershipStatus": "active",
+        "phone": "1234567890"
+    },
+    {
+        "name": "Jane Smith",
+        "email": "jane.smith@example.com",
+        "feeDueDate": "2025-04-05",
+        "membershipStatus": "active",
+        "phone": "2345678901"
+    },
+    {
+        "name": "Sam Patel",
+        "email": "sam.patel@example.com",
+        "feeDueDate": "2025-03-28",
+        "membershipStatus": "inactive",
+        "phone": "3456789012"
+    },
+    {
+        "name": "Lisa Wong",
+        "email": "lisa.wong@example.com",
+        "feeDueDate": "2025-04-02",
+        "membershipStatus": "active",
+        "phone": "4567890123"
+    },
+    {
+        "name": "David Johnson",
+        "email": "david.johnson@example.com",
+        "feeDueDate": "2025-03-25",
+        "membershipStatus": "suspended",
+        "phone": "5678901234"
+    },
+    {
+        "name": "Emma Brown",
+        "email": "emma.brown@example.com",
+        "feeDueDate": "2025-04-10",
+        "membershipStatus": "active",
+        "phone": "6789012345"
+    },
+    {
+        "name": "Mark Taylor",
+        "email": "mark.taylor@example.com",
+        "feeDueDate": "2025-03-27",
+        "membershipStatus": "inactive",
+        "phone": "7890123456"
+    },
+    {
+        "name": "Olivia Wilson",
+        "email": "olivia.wilson@example.com",
+        "feeDueDate": "2025-04-01",
+        "membershipStatus": "active",
+        "phone": "8901234567"
+    },
+    {
+        "name": "Liam Garcia",
+        "email": "liam.garcia@example.com",
+        "feeDueDate": "2025-03-29",
+        "membershipStatus": "suspended",
+        "phone": "9012345678"
+    },
+    {
+        "name": "Sophia Martinez",
+        "email": "sophia.martinez@example.com",
+        "feeDueDate": "2025-03-31",
+        "membershipStatus": "active",
+        "phone": "0123456789"
+    }
+]

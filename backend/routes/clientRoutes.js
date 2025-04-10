@@ -1,17 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const memberController = require('../controllers/memberController');
+const clientController = require('../controllers/clientController');
 const authController = require('../controllers/authController');
 
 // Protect all routes
 router.use(authController.protect);
 
 router.route('/')
-  .get(memberController.getMembers)
-  .post(memberController.addMember);
+  .get(clientController.getClients)
+  .post(clientController.addClient);
 
 router.route('/:id')
-  .put(memberController.updateMember)
-  .delete(memberController.deleteMember);
+  .put(clientController.updateClient)
+  .delete(clientController.deleteClient);
 
 module.exports = router;

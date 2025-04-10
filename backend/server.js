@@ -12,13 +12,21 @@ const app = express();
 // Connect to database
 connectDB();
 
+// CORS Configuration
+const corsOptions = {
+  origin: 'http://localhost:3000', // Your frontend URL
+  credentials: true,               // Allow credentials (cookies, authorization headers)
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed methods
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'], // Allowed headers
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/members', require('./routes/memberRoutes'));
+app.use('/api/clients', require('./routes/clientRoutes'));
 app.use('/api/email', require('./routes/emailRoutes'));
 // SMS routes temporarily disabled
 // app.use('/api/sms', require('./routes/smsRoutes'));

@@ -1,39 +1,94 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { FaBars, FaUserCircle, FaCog, FaSignOutAlt, FaChevronDown } from 'react-icons/fa';
-import logo from '../resouces/images/logo_img.jpg';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import Loader from './Loader';
+import ThemeToggle from './ThemeToggle';
+import './Navbar.css';
 
-const Navbar = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const navigate = useNavigate();
+const logo = 'https://res.cloudinary.com/deoegf9on/image/upload/v1743336576/logo_img_u6ueop.png';
+const defaultUserImg = 'https://res.cloudinary.com/deoegf9on/image/upload/v1743336193/defaultUserImage_zinyrv.avif'
+
+const Navbar = ({ toggleTheme, isDarkMode }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isOpen && !event.target.closest('.navbar-container')) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [isOpen]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
+    try {
+      setIsLoading(true); // Show loader
+      
+      // Clear all authentication-related data
+      localStorage.clear(); // This will remove all items from localStorage
+      
+      // Close the dropdown
+      setIsDropdownOpen(false);
+      
+      // Small delay to show the loader
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 500);
+    } catch (error) {
+      console.error('Logout error:', error);
+      // If something goes wrong, still try to redirect
+      setIsLoading(false);
+      window.location.href = '/login';
+    }
   };
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const toggleProfileDropdown = () => {
-    setIsProfileDropdownOpen(!isProfileDropdownOpen);
-  };
-
-  const menuItems = [
-    { label: 'Home', path: '/dashboard' },
-    { label: 'Clients', path: '/clients' },
-    { label: 'Reminders', path: '/reminders' },
-    { label: 'Payments', path: '/payments' },
-    { label: 'Settings', path: '/settings' },
-  ];
+  // Get username from localStorage or use default
+  const username = JSON.parse(localStorage.getItem('admin'))?.username || 'User';
 
   return (
-    <nav className="navbar navbar-expand-lg bg-white fixed-top shadow-sm">
-      <div className="container">
-        {/* Logo and Brand */}
-        <Link to="/dashboard" className="navbar-brand d-flex align-items-center">
+    <>
+      {isLoading && <Loader />}
+      <nav className="navbar">
+      <div className="navbar-container">
+        {/* Logo/Brand */}
+        <Link to="/" className="navbar-brand d-flex align-items-center">
           <img
             src={logo}
             alt="FeeAlert Logo"
@@ -43,70 +98,71 @@ const Navbar = () => {
           {/* <span className="brand-text fw-bold">FeeAlert</span> */}
         </Link>
 
-        {/* Mobile Toggle Button */}
+        {/* Hamburger Menu Button */}
         <button
-          className="navbar-toggler"
-          type="button"
-          onClick={toggleMobileMenu}
-          aria-expanded={isMobileMenuOpen}
-          aria-label="Toggle navigation"
+          className={`hamburger ${isOpen ? 'active' : ''}`}
+          onClick={toggleMenu}
+          aria-label="Toggle navigation menu"
         >
-          <FaBars />
+          <span></span>
+          <span></span>
+          <span></span>
         </button>
 
-        {/* Navigation Menu */}
-        <div className={`collapse navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`}>
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            {menuItems.map((item) => (
-              <li className="nav-item" key={item.path}>
-                <Link 
-                  to={item.path} 
-                  className="nav-link"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+        {/* Navigation Links */}
+        <div className={`nav-links ${isOpen ? 'active' : ''}`}>
+          <Link to="/" className="nav-link" onClick={() => setIsOpen(false)}>
+            Home
+          </Link>
+          <Link to="/send-reminder" className="nav-link" onClick={() => setIsOpen(false)}>
+            Send Reminder
+          </Link>
+          <Link to="/clients" className="nav-link" onClick={() => setIsOpen(false)}>
+            Clients
+          </Link>
+          <Link to="/dashboard" className="nav-link" onClick={() => setIsOpen(false)}>
+            Dashboard
+          </Link>
+          <Link to="/history" className="nav-link" onClick={() => setIsOpen(false)}>
+            History
+          </Link>
+          
+          {/* Right-aligned items container */}
+          <div className="nav-right-items">
+            {/* Theme Toggle */}
+            <div className="theme-toggle-container">
+              <ThemeToggle toggleTheme={toggleTheme} isDarkMode={isDarkMode} />
+            </div>
 
-          {/* Profile Dropdown */}
-          <div className="nav-item dropdown">
-            <button
-              className="btn btn-link nav-link dropdown-toggle d-flex align-items-center"
-              onClick={toggleProfileDropdown}
-              style={{ textDecoration: 'none' }}
-            >
-              <FaUserCircle className="me-2" />
-              <span>Profile</span>
-              <FaChevronDown className="ms-1" />
-            </button>
-
-            <ul className={`dropdown-menu dropdown-menu-end ${isProfileDropdownOpen ? 'show' : ''}`}>
-              <li>
-                <Link to="/profile" className="dropdown-item">
-                  <FaUserCircle className="me-2" />
-                  View Profile
+            {/* User Profile Section */}
+            <div className="user-profile" ref={dropdownRef}>
+            <div className="profile-trigger" onClick={toggleDropdown}>
+              <img
+                src={defaultUserImg}
+                alt="User"
+                className="user-avatar"
+              />
+              <span className="username">{username}</span>
+              <i className={`fas fa-chevron-down ${isDropdownOpen ? 'rotate' : ''}`}></i>
+            </div>
+            
+            {/* Dropdown Menu */}
+            {isDropdownOpen && (
+              <div className="profile-dropdown">
+                <Link to="/settings" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
+                  <i className="fas fa-cog"></i> Settings
                 </Link>
-              </li>
-              <li>
-                <Link to="/profile/settings" className="dropdown-item">
-                  <FaCog className="me-2" />
-                  Account Settings
-                </Link>
-              </li>
-              <li><hr className="dropdown-divider" /></li>
-              <li>
-                <button onClick={handleLogout} className="dropdown-item text-danger">
-                  <FaSignOutAlt className="me-2" />
-                  Logout
+                <button className="dropdown-item" onClick={handleLogout}>
+                  <i className="fas fa-sign-out-alt"></i> Logout
                 </button>
-              </li>
-            </ul>
+              </div>
+            )}
+            </div>
           </div>
         </div>
       </div>
     </nav>
+    </>
   );
 };
 

@@ -1,39 +1,32 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const clientSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
+    trim: true,
   },
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    lowercase: true,
+  },
+  feeDueDate: {
+    type: Date,
+    required: true,
+  },
+  membershipStatus: {
+    type: String,
+    enum: ["active", "inactive", "suspended"],
+    default: "active",
   },
   phone: {
     type: String,
-    required: true
+    required: true,
   },
-  feeAmount: {
-    type: Number,
-    required: true
-  },
-  dueDate: {
-    type: Date,
-    required: true
-  },
-  reminderType: {
-    type: String,
-    enum: ['email', 'sms', 'both'],
-    required: true
-  },
-  status: {
-    type: String,
-    enum: ['pending', 'paid', 'overdue'],
-    default: 'pending'
-  }
-}, {
-  timestamps: true
 });
 
-module.exports = mongoose.model('Client', clientSchema);
+const Client = mongoose.model("Client", clientSchema);
+
+module.exports = Client;

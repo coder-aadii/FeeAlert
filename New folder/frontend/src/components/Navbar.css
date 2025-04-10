@@ -1,0 +1,181 @@
+.header {
+  background: #fff;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.header .logo {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.header .logo img {
+  height: 40px;
+  width: auto;
+}
+
+.header .sitename {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  padding: 0 0 0 0.5rem;
+}
+
+.navmenu {
+  padding: 0;
+  margin: 0;
+}
+
+.navmenu ul {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  list-style: none;
+  align-items: center;
+}
+
+.navmenu a,
+.navmenu a:focus {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  font-size: 15px;
+  font-weight: 500;
+  color: #2c3e50;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.navmenu a:hover,
+.navmenu .active,
+.navmenu .active:focus,
+.navmenu a:hover {
+  color: #3498db;
+}
+
+.navmenu .dropdown {
+  position: relative;
+}
+
+.navmenu .dropdown ul {
+  display: block;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin: 0;
+  padding: 0.5rem 0;
+  background: #fff;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  visibility: hidden;
+  opacity: 0;
+  transition: 0.3s;
+  border-radius: 0.5rem;
+  min-width: 200px;
+  border: none;
+}
+
+.navmenu .dropdown:hover > ul,
+.navmenu .dropdown ul.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+.navmenu .dropdown ul li {
+  width: 100%;
+}
+
+.navmenu .dropdown ul a {
+  padding: 0.75rem 1.5rem;
+  font-size: 14px;
+  text-transform: none;
+  font-weight: 400;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+}
+
+.navmenu .dropdown ul a:hover {
+  color: #3498db;
+  background: #f8f9fa;
+}
+
+.navmenu .dropdown ul a.text-danger:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.mobile-nav-toggle {
+  display: none;
+  color: #2c3e50;
+  font-size: 24px;
+  cursor: pointer;
+  line-height: 0;
+  transition: 0.3s;
+  border: none;
+  padding: 0.25rem;
+  background: transparent;
+}
+
+.mobile-nav-toggle:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+@media (max-width: 991.98px) {
+  .mobile-nav-toggle {
+    display: block;
+  }
+
+  .navmenu {
+    position: fixed;
+    top: 70px;
+    right: -100%;
+    width: 300px;
+    bottom: 0;
+    transition: 0.3s;
+    z-index: 9997;
+    background: #fff;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    overflow-y: auto;
+    padding: 1rem 0;
+  }
+
+  .navmenu.mobile-open {
+    right: 0;
+  }
+
+  .navmenu ul {
+    display: block;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .navmenu a,
+  .navmenu a:focus {
+    padding: 0.75rem 1rem;
+  }
+
+  .navmenu .dropdown ul {
+    position: static;
+    display: none;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+  }
+
+  .navmenu .dropdown ul.show {
+    display: block;
+  }
+  
+  .navmenu .dropdown ul a {
+    padding: 0.75rem 2rem;
+  }
+}
+
+/* Add some spacing for fixed navbar */
+body {
+  padding-top: 70px;
+}

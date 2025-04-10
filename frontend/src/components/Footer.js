@@ -1,67 +1,81 @@
-import React from "react";
-import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import './Footer.css';
 
 const Footer = () => {
-    return (
-        <footer className="bg-primary text-light pt-5 pb-4">
-            <div className="container">
-                <div className="row">
-                    {/* About Section */}
-                    <div className="col-md-4">
-                        <h5 className="text-uppercase">Wake Me Up</h5>
-                        <p>
-                            Wake Me Up is a platform offering notifications and reminders for various purposes. Stay connected and never miss an important update.
-                        </p>
-                    </div>
+  const currentYear = new Date().getFullYear();
 
-                    {/* Quick Links Section */}
-                    <div className="col-md-4">
-                        <h5 className="text-uppercase">Quick Links</h5>
-                        <ul className="list-unstyled">
-                            <li><a href="#home" className="text-light">Home</a></li>
-                            <li><a href="#about" className="text-light">About</a></li>
-                            <li><a href="#services" className="text-light">Services</a></li>
-                            <li><a href="#contact" className="text-light">Contact</a></li>
-                        </ul>
-                    </div>
+  return (
+    <footer className="footer">
+      <div className="footer-content">
+        {/* Company Info Section */}
+        <div className="footer-section">
+          <h3>ReminderApp</h3>
+          <p>Helping you stay organized and never miss important tasks.</p>
+          <div className="social-links">
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+              <i className="fab fa-facebook"></i>
+            </a>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+              <i className="fab fa-twitter"></i>
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+              <i className="fab fa-linkedin"></i>
+            </a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+              <i className="fab fa-instagram"></i>
+            </a>
+          </div>
+        </div>
 
-                    {/* Social Links Section */}
-                    <div className="col-md-4">
-                        <h5 className="text-uppercase">Connect With Me</h5>
-                        <ul className="list-unstyled d-flex">
-                            <li className="me-3">
-                                <a href="https://github.com/coder-aadii" target="_blank" rel="noopener noreferrer" className="text-light">
-                                    <FaGithub size={24} />
-                                </a>
-                            </li>
-                            <li className="me-3">
-                                <a href="https://www.linkedin.com/in/aditya-aerpule-a22062309/" target="_blank" rel="noopener noreferrer" className="text-light">
-                                    <FaLinkedin size={24} />
-                                </a>
-                            </li>
-                            <li className="me-3">
-                                <a href="mailto:adityaaerpule@gmail.com" className="text-light">
-                                    <FaEnvelope size={24} />
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+        {/* Quick Links Section */}
+        <div className="footer-section">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/about">About Us</Link></li>
+            <li><Link to="/features">Features</Link></li>
+            <li><Link to="/pricing">Pricing</Link></li>
+          </ul>
+        </div>
 
-                {/* Copyright Section */}
-                <p className="mb-0">© 2025 Wake Me Up. All Rights Reserved.</p>
-                <p>
-                    Designed and Developed with
-                    <img
-                        src="https://res.cloudinary.com/deoegf9on/image/upload/v1743064818/icons8-heart_m26xfp.gif"
-                        alt="Heart Icon"
-                        style={{ width: "24px", margin: "0 5px" }}
-                    />
-                    by <strong>Code-Aadi</strong>
-                </p>
-            </div>
-        </footer>
-    );
+        {/* Legal Links Section */}
+        <div className="footer-section">
+          <h3>Legal</h3>
+          <ul>
+            <li><Link to="/privacy-policy">Privacy Policy</Link></li>
+            <li><Link to="/terms">Terms of Service</Link></li>
+            <li><Link to="/cookies">Cookie Policy</Link></li>
+            <li><Link to="/disclaimer">Disclaimer</Link></li>
+          </ul>
+        </div>
+
+        {/* Contact Section */}
+        <div className="footer-section">
+          <h3>Contact Us</h3>
+          <ul>
+            <li>
+              <i className="fas fa-envelope"></i>
+              <a href="mailto:support@reminderapp.com">support@reminderapp.com</a>
+            </li>
+            <li>
+              <i className="fas fa-phone"></i>
+              <a href="tel:+1234567890">+1 (234) 567-890</a>
+            </li>
+            <li>
+              <i className="fas fa-map-marker-alt"></i>
+              <span>123 App Street, Silicon Valley, CA 94025</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Copyright Section */}
+      <div className="footer-bottom">
+        <p>&copy; {currentYear} FeeAlert. All rights reserved.</p>
+      </div>
+    </footer>
+  );
 };
 
 export default Footer;

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
+import logo from '../resouces/images/loginPanel_img.jpg';
 import './Login.css';
-import Loader from '../components/Loader';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -11,9 +11,7 @@ const Login = () => {
     rememberMe: false
   });
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const handleChange = (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -25,41 +23,33 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
     try {
-      await login({
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
         username: formData.username,
         password: formData.password
       });
-
-      // Store remember me preference if checked
+      
+      localStorage.setItem('token', response.data.token);
       if (formData.rememberMe) {
         localStorage.setItem('rememberMe', 'true');
       }
+      localStorage.setItem('admin', JSON.stringify(response.data.admin));
       
-      // Navigate to home page after successful login
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       setError(error.response?.data?.message || 'Login failed');
-      console.error('Login error:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
-    <>
-      {isLoading && <Loader />}
-      <section className="text-center text-lg-start">
+    <section className="text-center text-lg-start">
       <div className="container py-4">
         <div className="card">
           <div className="row g-0 align-items-center">
             {/* Logo Section */}
             <div className="col-lg-4 d-none d-lg-flex">
               <img
-                src='https://res.cloudinary.com/deoegf9on/image/upload/v1743270909/loginPanel_img_phqwsc.jpg'
+                src={logo}
                 alt="FeeAlert Logo"
                 className="img-fluid rounded-start"
                 style={{ objectFit: 'cover', height: '100%' }}
@@ -71,7 +61,7 @@ const Login = () => {
                 {/* Logo for mobile view */}
                 <div className="text-center mb-4 d-lg-none">
                   <img
-                    src='https://res.cloudinary.com/deoegf9on/image/upload/v1743270909/loginPanel_img_phqwsc.jpg'
+                    src={logo}
                     alt="FeeAlert Logo"
                     className="img-fluid mb-3"
                     style={{ maxHeight: '100px' }}
@@ -97,8 +87,6 @@ const Login = () => {
                       onChange={handleChange}
                       placeholder="Enter your username"
                       required
-                      disabled={isLoading}
-                      autoComplete="username"
                     />
                     <label className="form-label" htmlFor="username">Username</label>
                   </div>
@@ -114,7 +102,6 @@ const Login = () => {
                       onChange={handleChange}
                       placeholder="Enter your password"
                       required
-                      disabled={isLoading}
                     />
                     <label className="form-label" htmlFor="password">Password</label>
                   </div>
@@ -130,7 +117,6 @@ const Login = () => {
                           name="rememberMe"
                           checked={formData.rememberMe}
                           onChange={handleChange}
-                          disabled={isLoading}
                         />
                         <label className="form-check-label" htmlFor="rememberMe">
                           Remember me
@@ -148,9 +134,8 @@ const Login = () => {
                   <button
                     type="submit"
                     className="btn btn-primary btn-block mb-4 w-100"
-                    disabled={isLoading}
                   >
-                    {isLoading ? 'Signing in...' : 'Sign In'}
+                    Sign In
                   </button>
                 </form>
               </div>
@@ -158,8 +143,7 @@ const Login = () => {
           </div>
         </div>
       </div>
-      </section>
-    </>
+    </section>
   );
 };
 

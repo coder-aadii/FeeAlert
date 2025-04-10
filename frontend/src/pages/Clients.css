@@ -1,0 +1,152 @@
+.clients-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+    margin-bottom: 1rem;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+.table th,
+.table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.clients-container h1 {
+    color: #333;
+    margin-bottom: 2rem;
+}
+
+.clients-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.client-item {
+    background-color: #f9f9f9;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.client-item:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.client-item h4 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #007bff;
+}
+
+.client-item p {
+    margin: 0.5rem 0 0;
+    color: #666;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.pagination-button {
+    padding: 0.5rem 1rem;
+    border: 1px solid #dee2e6;
+    background-color: #fff;
+    color: #007bff;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.pagination-button:hover {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+.pagination-button.active {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+.pagination-button:disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+    border-color: #dee2e6;
+}
+
+/* Dark theme support */
+[data-theme='dark'] .table th {
+    background-color: #2d2d2d;
+    color: #ffffff;
+}
+
+[data-theme='dark'] .table td {
+    border-color: #404040;
+}
+
+[data-theme='dark'] .pagination-button {
+    background-color: #2d2d2d;
+    color: #60a5fa;
+    border-color: #404040;
+}
+
+[data-theme='dark'] .pagination-button:hover {
+    background-color: #404040;
+    color: #fff;
+    border-color: #60a5fa;
+}
+
+[data-theme='dark'] .pagination-button.active {
+    background-color: #60a5fa;
+    color: #fff;
+    border-color: #60a5fa;
+}
+
+[data-theme='dark'] .pagination-button:disabled {
+    background-color: #1a1a1a;
+    color: #6c757d;
+    border-color: #404040;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .clients-container {
+        padding: 1rem;
+    }
+
+    .client-item {
+        padding: 0.75rem;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.5rem;
+    }
+}
