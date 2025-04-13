@@ -172,7 +172,7 @@ const SendReminder = () => {
   const fetchReminderHistory = async (clientId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:5000/api/clients/${clientId}/reminders`, {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/clients/${clientId}/reminders`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       return response.data;
@@ -360,7 +360,7 @@ const SendReminder = () => {
       }
 
       // Fetch clients from API
-      const response = await axios.get(`http://localhost:5000/api/clients?page=${page}&limit=${recordsPerPage}`, {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/clients?page=${page}&limit=${recordsPerPage}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -620,7 +620,7 @@ const SendReminder = () => {
         return;
       }
       
-      const response = await axios.post('http://localhost:5000/api/reminders', {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/reminders`, {
         clientIds: selectedClients,
         dueDate: formData.dueDate,
         message: formData.message,

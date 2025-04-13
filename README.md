@@ -1,15 +1,15 @@
 # FeeAlert - Smart Fee Management System 🚀
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-[![Live Demo](https://img.shields.io/badge/demo-online-green.svg)](https://feealert-demo.herokuapp.com)
-[![GitHub Stars](https://img.shields.io/github/stars/yourusername/feealert?style=social)](https://github.com/yourusername/feealert)
+[![Live Demo](https://img.shields.io/badge/demo-online-green.svg)](https://feealert.netlify.app)
+[![GitHub Stars](https://img.shields.io/github/stars/yourusername/feealert?style=social)](https://github.com/coder-aadii/feealert)
 
 <div align="center">
   <img src="docs/images/feealert-banner.png" alt="FeeAlert Banner" width="100%">
   
   ### 💰 Never Miss a Payment – Automated Fee Reminders Made Simple
   
-  [Live Demo](https://feealert-demo.herokuapp.com) | [Documentation](https://feealert-docs.netlify.app) | [Report Bug](https://github.com/yourusername/feealert/issues) | [Request Feature](https://github.com/yourusername/feealert/issues)
+  [Live Demo](https://feealert-demo.herokuapp.com) | [Documentation](https://feealert.netlify.app) | [Report Bug](https://github.com/coder-aadii/feealert/issues) | [Request Feature](https://github.com/coder-aadii/feealert/issues)
 </div>
 
 ## ✨ Why FeeAlert?

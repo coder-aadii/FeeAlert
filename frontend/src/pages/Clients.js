@@ -76,7 +76,7 @@ const Clients = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
 
-      const response = await axios.get(`http://localhost:5000/api/clients?page=${page}&limit=${recordsPerPage}`, {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/clients?page=${page}&limit=${recordsPerPage}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

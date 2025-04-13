@@ -33,7 +33,7 @@ const Dashboard = () => {
       const token = localStorage.getItem('token');
       
       // Fetch students data from MongoDB
-      const response = await axios.get('http://localhost:5000/api/clients', {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/clients`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

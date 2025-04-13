@@ -8,6 +8,9 @@ const { scheduleReminders } = require('./utils/automatedReminders');
 // Load env vars
 dotenv.config();
 
+// Use BACKEND_URL from .env, fallback to default value if not provided
+const BACKEND_URL = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 5000}`;
+
 // Initialize express
 const app = express();
 
@@ -77,7 +80,7 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`
 🚀 Server running on port ${PORT}
-📝 API Documentation: http://localhost:${PORT}/api-docs
+📝 API Documentation: ${BACKEND_URL}/api-docs
 🔧 Environment: ${process.env.NODE_ENV || 'development'}
   `);
 });

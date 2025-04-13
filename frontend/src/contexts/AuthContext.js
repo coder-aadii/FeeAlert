@@ -19,7 +19,10 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', credentials);
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/auth/login`, 
+        credentials
+      );      
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('admin', JSON.stringify(response.data.admin));
       setUser(response.data.admin);
