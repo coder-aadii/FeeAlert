@@ -1,32 +1,132 @@
 .clients-container {
+    padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem;
-    background-color: #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.search-section {
+    flex-grow: 1;
+    max-width: 400px;
+    margin: 0 20px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+.download-pdf-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.download-pdf-button:hover {
+    background-color: #45a049;
+}
+
+.download-pdf-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
 }
 
 .table-responsive {
     overflow-x: auto;
-    margin-bottom: 1rem;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+/* Status badge styles */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: capitalize;
+    display: inline-block;
+}
+
+.status-badge.active {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-badge.inactive {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.status-badge.pending {
+    background-color: #fff3e0;
+    color: #ef6c00;
+}
+
+.status-badge.suspended {
+    background-color: #fff3e0;
+    color: #ef6c00;
+}
+
+/* Due date column */
+.table td:nth-child(5) {
+    white-space: nowrap;
+}
+
+/* Fee slot column */
+.table td:nth-child(6) {
+    white-space: nowrap;
 }
 
 .table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 1rem;
+    background-color: white;
+    margin-bottom: 0;
 }
 
 .table th,
 .table td {
-    padding: 0.75rem;
-    border-bottom: 1px solid #dee2e6;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
 }
 
 .table th {
     background-color: #f8f9fa;
     font-weight: 600;
+    color: #333;
+}
+
+.table tbody tr:hover {
+    background-color: #f5f5f5;
 }
 
 .clients-container h1 {
@@ -68,37 +168,40 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 0.5rem;
-    margin-top: 1rem;
+    gap: 8px;
+    margin-top: 20px;
 }
 
 .pagination-button {
-    padding: 0.5rem 1rem;
-    border: 1px solid #dee2e6;
-    background-color: #fff;
-    color: #007bff;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background-color: white;
     cursor: pointer;
     border-radius: 4px;
-    transition: all 0.3s ease;
+    transition: all 0.2s;
 }
 
-.pagination-button:hover {
-    background-color: #007bff;
-    color: #fff;
-    border-color: #007bff;
+.pagination-button:hover:not(:disabled) {
+    background-color: #f0f0f0;
 }
 
 .pagination-button.active {
     background-color: #007bff;
-    color: #fff;
+    color: white;
     border-color: #007bff;
 }
 
 .pagination-button:disabled {
-    background-color: #e9ecef;
-    color: #6c757d;
     cursor: not-allowed;
-    border-color: #dee2e6;
+    opacity: 0.5;
+}
+
+.error-message {
+    color: #dc3545;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f8d7da;
+    border-radius: 4px;
 }
 
 /* Dark theme support */
@@ -109,6 +212,40 @@
 
 [data-theme='dark'] .table td {
     border-color: #404040;
+}
+
+[data-theme='dark'] .status-badge.active {
+    background-color: rgba(46, 125, 50, 0.2);
+    color: #81c784;
+}
+
+[data-theme='dark'] .status-badge.inactive {
+    background-color: rgba(198, 40, 40, 0.2);
+    color: #e57373;
+}
+
+[data-theme='dark'] .status-badge.pending {
+    background-color: rgba(239, 108, 0, 0.2);
+    color: #ffb74d;
+}
+
+[data-theme='dark'] .status-badge.suspended {
+    background-color: rgba(239, 108, 0, 0.2);
+    color: #ffb74d;
+}
+
+[data-theme='dark'] .download-pdf-button {
+    background-color: #3d8b40;
+    color: #ffffff;
+}
+
+[data-theme='dark'] .download-pdf-button:hover {
+    background-color: #2d682f;
+}
+
+[data-theme='dark'] .download-pdf-button:disabled {
+    background-color: #555555;
+    color: #888888;
 }
 
 [data-theme='dark'] .pagination-button {
@@ -135,18 +272,66 @@
     border-color: #404040;
 }
 
+[data-theme='dark'] .search-input {
+    background-color: #2d2d2d;
+    border-color: #404040;
+    color: #ffffff;
+}
+
+[data-theme='dark'] .search-input:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.25);
+}
+
+/* Loading and error messages */
+.loading-message,
+.error-message {
+    text-align: center;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.loading-message {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
-    .clients-container {
-        padding: 1rem;
-    }
-
-    .client-item {
-        padding: 0.75rem;
+    .table {
+        font-size: 0.9rem;
     }
     
     .table th,
     .table td {
-        padding: 0.5rem;
+        padding: 8px 10px;
+    }
+    
+    .pagination {
+        flex-wrap: wrap;
+    }
+    
+    .client-item {
+        padding: 0.75rem;
+    }
+    
+    .status-badge {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+    
+    .header-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-section {
+        order: 2;
+        max-width: 100%;
+        margin: 10px 0;
+    }
+    
+    .download-pdf-button {
+        order: 3;
     }
 }

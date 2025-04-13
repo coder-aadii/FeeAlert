@@ -1,5 +1,12 @@
 [
     {
+        "name": "Aditya Aerpule",
+        "email": "adityaaerpule@gmail.com",
+        "feeDueDate": "2025-03-30",
+        "membershipStatus": "active",
+        "phone": "1234567890"
+    },
+    {
         "name": "John Doe",
         "email": "john.doe@example.com",
         "feeDueDate": "2025-03-30",
@@ -68,5 +75,75 @@
         "feeDueDate": "2025-03-31",
         "membershipStatus": "active",
         "phone": "0123456789"
+    },
+    {
+        "name": "Sara Kim",
+        "email": "sara.kim@example.com",
+        "feeDueDate": "2025-03-05",
+        "membershipStatus": "active",
+        "phone": "9876543210"
+    },
+    {
+        "name": "Jordan Smith",
+        "email": "jordan.smith@example.com",
+        "feeDueDate": "2025-03-12",
+        "membershipStatus": "active",
+        "phone": "8765432109"
+    },
+    {
+        "name": "Priya Nair",
+        "email": "priya.nair@example.com",
+        "feeDueDate": "2025-03-18",
+        "membershipStatus": "inactive",
+        "phone": "7654321098"
+    },
+    {
+        "name": "Liam Johnson",
+        "email": "liam.johnson@example.com",
+        "feeDueDate": "2025-03-25",
+        "membershipStatus": "active",
+        "phone": "6543210987"
+    },
+    {
+        "name": "Emily Zhao",
+        "email": "emily.zhao@example.com",
+        "feeDueDate": "2025-03-08",
+        "membershipStatus": "active",
+        "phone": "5432109876"
+    },
+    {
+        "name": "Carlos Mendoza",
+        "email": "carlos.mendoza@example.com",
+        "feeDueDate": "2025-03-15",
+        "membershipStatus": "inactive",
+        "phone": "4321098765"
+    },
+    {
+        "name": "Nina Patel",
+        "email": "nina.patel@example.com",
+        "feeDueDate": "2025-03-22",
+        "membershipStatus": "active",
+        "phone": "3210987654"
+    },
+    {
+        "name": "Ethan Wright",
+        "email": "ethan.wright@example.com",
+        "feeDueDate": "2025-03-28",
+        "membershipStatus": "active",
+        "phone": "2109876543"
+    },
+    {
+        "name": "Amelia Davies",
+        "email": "amelia.davies@example.com",
+        "feeDueDate": "2025-03-02",
+        "membershipStatus": "active",
+        "phone": "1098765432"
+    },
+    {
+        "name": "Rohan Das",
+        "email": "rohan.das@example.com",
+        "feeDueDate": "2025-03-20",
+        "membershipStatus": "inactive",
+        "phone": "9988776655"
     }
 ]

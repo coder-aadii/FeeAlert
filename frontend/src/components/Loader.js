@@ -1,10 +1,10 @@
 import React from 'react';
 import './Loader.css';
 
-const Loader = () => {
+const Loader = ({ size = 'medium', color = 'primary' }) => {
   return (
     <div className="loader-container">
-      <div className="loader"></div>
+      <div className={`loader loader-${size} loader-${color}`}></div>
     </div>
   );
 };
