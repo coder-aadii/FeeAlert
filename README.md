@@ -9,7 +9,7 @@
   
   ### 💰 Never Miss a Payment – Automated Fee Reminders Made Simple
   
-  [Live Demo](https://feealert-demo.herokuapp.com) | [Documentation](https://feealert.netlify.app) | [Report Bug](https://github.com/coder-aadii/feealert/issues) | [Request Feature](https://github.com/coder-aadii/feealert/issues)
+  [Live Demo](https://feealert.netlify.app) | [Documentation](https://feealert.netlify.app) | [Report Bug](https://github.com/coder-aadii/feealert/issues) | [Request Feature](https://github.com/coder-aadii/feealert/issues)
 </div>
 
 ## ✨ Why FeeAlert?
@@ -17,7 +17,7 @@
 Managing fee collections shouldn't be a headache! FeeAlert transforms the way yoga instructors, tutors, and small business owners handle payment reminders. With automated SMS and email notifications, your clients stay informed while you focus on what matters most – your business.
 
 <div align="center">
-  <img src="docs/images/dashboard-preview.gif" alt="Dashboard Preview" width="80%">
+  <img src="docs/images/dashboard.png" alt="Dashboard Preview" width="80%">
 </div>
 
 ## 🎯 Key Features
@@ -60,7 +60,7 @@ Managing fee collections shouldn't be a headache! FeeAlert transforms the way yo
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/feealert.git
+git clone https://github.com/coder-aadii/feealert.git
 
 # Install dependencies
 cd feealert
@@ -76,19 +76,19 @@ npm start
   <table>
     <tr>
       <td align="center">
-        <img src="docs/images/react.png" width="48" height="48"><br>
+        <img src="https://img.icons8.com/?size=100&id=wPohyHO_qO1a&format=png&color=000000" width="48" height="48"><br>
         React.js
       </td>
       <td align="center">
-        <img src="docs/images/node.png" width="48" height="48"><br>
+        <img src="https://img.icons8.com/?size=100&id=hsPbhkOH4FMe&format=png&color=000000" width="48" height="48"><br>
         Node.js
       </td>
       <td align="center">
-        <img src="docs/images/mongodb.png" width="48" height="48"><br>
+        <img src="https://www.svgrepo.com/show/331488/mongodb.svg" width="48" height="48"><br>
         MongoDB
       </td>
       <td align="center">
-        <img src="docs/images/mui.png" width="48" height="48"><br>
+        <img src="https://img.icons8.com/?size=100&id=gFw7X5Tbl3ss&format=png&color=000000" width="48" height="48"><br>
         Material-UI
       </td>
     </tr>
@@ -135,7 +135,7 @@ npm start
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/feealert.git
+   git clone https://github.com/coder-aadii/feealert.git
    cd feealert
    ```
 
@@ -162,11 +162,18 @@ npm start
    TWILIO_ACCOUNT_SID=your_twilio_sid
    TWILIO_AUTH_TOKEN=your_twilio_auth_token
    TWILIO_PHONE_NUMBER=your_twilio_phone_number
+   BACKEND_URL=http://localhost:5000
    ```
 
-5. Set up Gmail App Password for Nodemailer (email reminders).
+5. Create a `.env` file in the frontend directory with the following variable:
+   ```
+   REACT_APP_BACKEND_URL=http://localhost:5000
+   ```
+   Note: For Create React App, environment variables must be prefixed with REACT_APP_ to be accessible in your code.
 
-6. Set up your preferred SMS service (Twilio or Gammu).
+6. Set up Gmail App Password for Nodemailer (email reminders).
+
+7. Set up your preferred SMS service (Twilio or Gammu).
 
 ### Running the Application
 
@@ -203,7 +210,7 @@ feealert/
 │   ├── src/
 │   │   ├── components/ # React components
 │   │   ├── pages/      # Page components
-│   │   ├── services/   # API services
+│   │   ├── services/   # API services (using REACT_APP_BACKEND_URL)
 │   │   ├── utils/      # Helper functions
 │   │   └── App.js      # Main component
 │   └── package.json
@@ -233,7 +240,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Give a ⭐️ if this project helped you!
 
 <div align="center">
-  <a href="https://www.buymeacoffee.com/yourusername">
+  <a href="https://www.buymeacoffee.com/coder-aadii">
     <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="50" alt="Buy Me A Coffee">
   </a>
 </div>
@@ -243,8 +250,8 @@ Give a ⭐️ if this project helped you!
 Have questions? Reach out to us:
 
 - Email: support@feealert.com
-- Twitter: [@FeeAlert](https://twitter.com/FeeAlert)
-- Website: [www.feealert.com](https://www.feealert.com)
+<!-- - Twitter: [@FeeAlert](https://twitter.com/FeeAlert) -->
+- Website: [www.feealert.com](https://feealert.netlify.app)
 
 <div align="center">
   Made with ❤️ by the FeeAlert Team
