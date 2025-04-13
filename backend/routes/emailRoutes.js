@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 
-// Debug middleware
+// Debug middleware: Commented out debug logs for production
 router.use((req, res, next) => {
-  console.log('\n🔄 Email Route Hit:', {
-    method: req.method,
-    path: req.path,
-    body: req.body
-  });
+  // console.log('\n🔄 Email Route Hit:', {
+  //   method: req.method,
+  //   path: req.path,
+  //   body: req.body
+  // });
   next();
 });
 

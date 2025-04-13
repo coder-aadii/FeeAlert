@@ -21,22 +21,22 @@ app.use(express.urlencoded({ extended: true }));
 
 // Debug middleware
 app.use((req, res, next) => {
-  console.log('\n📥 Incoming Request:', {
-    method: req.method,
-    path: req.path,
-    body: req.body
-  });
+  // console.log('\n📥 Incoming Request:', {
+  //   method: req.method,
+  //   path: req.path,
+  //   body: req.body
+  // });
   next();
 });
 
 // Connect to database
 connectDB()
   .then(() => {
-    console.log('📦 Connected to MongoDB');
+    // console.log('📦 Connected to MongoDB');
     
     // Start automated reminders after DB connection is established
     scheduleReminders();
-    console.log('⏰ Automated reminder system initialized');
+    // console.log('⏰ Automated reminder system initialized');
   })
   .catch((err) => {
     console.error('❌ MongoDB connection error:', err);
@@ -78,11 +78,11 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`
-🚀 Server running on port ${PORT}
-📝 API Documentation: ${BACKEND_URL}/api-docs
-🔧 Environment: ${process.env.NODE_ENV || 'development'}
-  `);
+  // console.log(`
+  // 🚀 Server running on port ${PORT}
+  // 📝 API Documentation: ${BACKEND_URL}/api-docs
+  // 🔧 Environment: ${process.env.NODE_ENV || 'development'}
+  // `);
 });
 
 // Handle unhandled promise rejections
@@ -105,9 +105,9 @@ process.on('uncaughtException', (err) => {
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('👋 SIGTERM received. Performing graceful shutdown...');
+  // console.log('👋 SIGTERM received. Performing graceful shutdown...');
   mongoose.connection.close(() => {
-    console.log('📦 MongoDB connection closed.');
+    // console.log('📦 MongoDB connection closed.');
     process.exit(0);
   });
 });

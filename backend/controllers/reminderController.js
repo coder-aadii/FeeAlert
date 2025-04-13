@@ -22,7 +22,7 @@ const createReminderHistory = async (userId, client, reminderType, status, descr
       metadata
     });
 
-    console.log('Created history entry:', historyEntry._id);
+    // console.log('Created history entry:', historyEntry._id);
     return historyEntry;
   } catch (error) {
     console.error('Error creating reminder history:', error);

@@ -556,7 +556,7 @@ const SendReminder = () => {
       ? selectedClients.filter(id => id !== clientId)
       : [...selectedClients, clientId];
     
-    console.log(`Client ${clientId} ${isAlreadySelected ? 'deselected' : 'selected'}, total selected: ${newSelectedClients.length}`);
+    // console.log(`Client ${clientId} ${isAlreadySelected ? 'deselected' : 'selected'}, total selected: ${newSelectedClients.length}`);
     setSelectedClients(newSelectedClients);
   };
 

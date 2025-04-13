@@ -33,20 +33,20 @@ const sendSlotReminders = async () => {
   const today = new Date();
   const day = today.getDate();
   
-  console.log(`\n📅 Current date: ${today.toLocaleDateString()}`);
-  console.log(`📅 Current day: ${day}`);
+  // console.log(`\n📅 Current date: ${today.toLocaleDateString()}`);
+  // console.log(`📅 Current day: ${day}`);
   
   // Check if today is within any payment window
   const slotDetails = getSlotDetails(day);
   if (!slotDetails) {
-    console.log('❌ Today is not a payment day for any slot. No reminders will be sent.');
+    // console.log('❌ Today is not a payment day for any slot. No reminders will be sent.');
     return;
   }
 
-  console.log(`\n📧 Starting Automated Reminders for ${slotDetails.paymentPeriod}`);
-  console.log(`🎯 Active Slot: ${slotDetails.slot}`);
-  console.log(`⏰ Payment Period: ${slotDetails.paymentPeriod}`);
-  console.log(`📅 Due Period: ${slotDetails.duePeriod}`);
+  // console.log(`\n📧 Starting Automated Reminders for ${slotDetails.paymentPeriod}`);
+  // console.log(`🎯 Active Slot: ${slotDetails.slot}`);
+  // console.log(`⏰ Payment Period: ${slotDetails.paymentPeriod}`);
+  // console.log(`📅 Due Period: ${slotDetails.duePeriod}`);
 
   try {
     // Find clients with due dates in this slot
@@ -65,7 +65,7 @@ const sendSlotReminders = async () => {
       return false;
     });
 
-    console.log(`Found ${slotClients.length} clients for ${slotDetails.paymentPeriod}`);
+    // console.log(`Found ${slotClients.length} clients for ${slotDetails.paymentPeriod}`);
 
     for (const client of slotClients) {
       try {
@@ -126,7 +126,7 @@ For any queries, please contact our support team.
           html: htmlContent
         });
 
-        console.log(`✅ Reminder sent to ${client.email}`);
+        // console.log(`✅ Reminder sent to ${client.email}`);
         
         // Create history entry for the reminder
         const status = 'success';
@@ -147,7 +147,7 @@ For any queries, please contact our support team.
           metadata
         );
       } catch (error) {
-        console.error(`❌ Failed to send reminder to ${client.email}:`, error);
+        // console.error(`❌ Failed to send reminder to ${client.email}:`, error);
         
         // Create history entry for failed reminder
         const status = 'failed';
@@ -169,12 +169,12 @@ For any queries, please contact our support team.
             metadata
           );
         } catch (historyError) {
-          console.error(`❌ Failed to create reminder history for ${client.email}:`, historyError);
+          // console.error(`❌ Failed to create reminder history for ${client.email}:`, historyError);
         }
       }
     }
   } catch (error) {
-    console.error('❌ Error in automated reminders:', error);
+    // console.error('❌ Error in automated reminders:', error);
   }
 };
 
@@ -185,7 +185,7 @@ const scheduleReminders = () => {
     await sendSlotReminders();
   });
 
-  console.log('📅 Automated reminders scheduled for 10:00 AM daily');
+  // console.log('📅 Automated reminders scheduled for 10:00 AM daily');
 };
 
 module.exports = { 

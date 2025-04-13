@@ -62,7 +62,7 @@ router.get('/', auth, async (req, res) => {
     const total = await History.countDocuments(query);
 
     // Log the query for debugging
-    console.log('History Query:', query);
+    // console.log('History Query:', query);
 
     // Fetch history items with populated client data
     const items = await History.find(query)
@@ -72,12 +72,12 @@ router.get('/', auth, async (req, res) => {
       .populate('clientId', 'name email phone');
 
     // Log the response for debugging
-    console.log('History Response:', {
-      totalItems: total,
-      currentPage: page,
-      itemsPerPage: limitNum,
-      itemsReturned: items.length
-    });
+    // console.log('History Response:', {
+    //   totalItems: total,
+    //   currentPage: page,
+    //   itemsPerPage: limitNum,
+    //   itemsReturned: items.length
+    // });
 
     res.json({
       items,

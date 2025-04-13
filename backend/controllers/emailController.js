@@ -2,25 +2,25 @@ const Client = require('../models/clientModel');
 const sendEmail = require('../utils/sendEmail');
 
 exports.sendEmailReminder = async (req, res) => {
-  console.log('\n📧 Email Reminder Process Started');
-  console.log('Request Body:', req.body);
+  // console.log('\n📧 Email Reminder Process Started');
+  // console.log('Request Body:', req.body);
   
   try {
     const { clientIds, message, subject = 'Fee Payment Reminder', dueDate, paymentSlot } = req.body;
 
     if (!clientIds || !Array.isArray(clientIds) || clientIds.length === 0) {
-      console.log('❌ Error: No clients selected');
+      // console.log('❌ Error: No clients selected');
       return res.status(400).json({ success: false, message: 'No clients selected' });
     }
 
     if (!message) {
-      console.log('❌ Error: No message provided');
+      // console.log('❌ Error: No message provided');
       return res.status(400).json({ success: false, message: 'Email message is required' });
     }
 
-    console.log(`📋 Processing ${clientIds.length} clients`);
-    console.log('Message:', message);
-    console.log('Subject:', subject);
+    // console.log(`📋 Processing ${clientIds.length} clients`);
+    // console.log('Message:', message);
+    // console.log('Subject:', subject);
 
     const results = {
       success: [],
@@ -40,11 +40,11 @@ exports.sendEmailReminder = async (req, res) => {
 
     // Process each client
     for (const clientId of clientIds) {
-      console.log(`\n🔄 Processing client ID: ${clientId}`);
+      // console.log(`\n🔄 Processing client ID: ${clientId}`);
       
       try {
         if (!clientId) {
-          console.log('❌ Invalid client ID');
+          // console.log('❌ Invalid client ID');
           results.failed.push({ clientId, reason: 'Invalid client ID' });
           continue;
         }
@@ -52,13 +52,13 @@ exports.sendEmailReminder = async (req, res) => {
         const client = await Client.findById(clientId);
         
         if (!client) {
-          console.log(`❌ Client not found: ${clientId}`);
+          // console.log(`❌ Client not found: ${clientId}`);
           results.failed.push({ clientId, reason: 'Client not found' });
           continue;
         }
 
         if (!client.email) {
-          console.log(`❌ Client ${clientId} has no email address`);
+          // console.log(`❌ Client ${clientId} has no email address`);
           results.failed.push({ 
             clientId, 
             name: client.name, 
@@ -67,7 +67,7 @@ exports.sendEmailReminder = async (req, res) => {
           continue;
         }
 
-        console.log(`📨 Sending email to: ${client.email} (${client.name})`);
+        // console.log(`📨 Sending email to: ${client.email} (${client.name})`);
 
         // Create HTML content for email
         const htmlContent = `
@@ -109,7 +109,7 @@ exports.sendEmailReminder = async (req, res) => {
           html: htmlContent
         });
 
-        console.log(`✅ Email sent successfully to: ${client.email}`);
+        // console.log(`✅ Email sent successfully to: ${client.email}`);
         results.success.push({ clientId, email: client.email, name: client.name });
       } catch (error) {
         console.error(`❌ Error processing client ${clientId}:`, error);
@@ -130,9 +130,9 @@ exports.sendEmailReminder = async (req, res) => {
       }
     }
 
-    console.log('\n📊 Final Results:');
-    console.log('Successful:', results.success.length);
-    console.log('Failed:', results.failed.length);
+    // console.log('\n📊 Final Results:');
+    // console.log('Successful:', results.success.length);
+    // console.log('Failed:', results.failed.length);
 
     // Return response with results
     return res.status(200).json({ 
@@ -158,42 +158,42 @@ exports.sendEmailReminder = async (req, res) => {
 
 // Single client email reminder
 exports.sendSingleEmailReminder = async (req, res) => {
-  console.log('\n📧 Single Email Reminder Process Started');
-  console.log('Client ID:', req.params.clientId);
+  // console.log('\n📧 Single Email Reminder Process Started');
+  // console.log('Client ID:', req.params.clientId);
   
   try {
     const { clientId } = req.params;
     
     if (!clientId) {
-      console.log('❌ No client ID provided');
+      // console.log('❌ No client ID provided');
       return res.status(400).json({ success: false, message: 'Client ID is required' });
     }
     
     const client = await Client.findById(clientId);
 
     if (!client) {
-      console.log(`❌ Client not found: ${clientId}`);
+      // console.log(`❌ Client not found: ${clientId}`);
       return res.status(404).json({ success: false, message: 'Client not found' });
     }
 
     if (!client.email) {
-      console.log(`❌ Client ${clientId} has no email address`);
+      // console.log(`❌ Client ${clientId} has no email address`);
       return res.status(400).json({ success: false, message: 'Client has no email address' });
     }
 
     if (!client.feeAmount) {
-      console.log(`❌ Client ${clientId} missing fee amount`);
+      // console.log(`❌ Client ${clientId} missing fee amount`);
       return res.status(400).json({ success: false, message: 'Client missing fee amount' });
     }
     
     if (!client.dueDate) {
-      console.log(`❌ Client ${clientId} missing due date`);
+      // console.log(`❌ Client ${clientId} missing due date`);
       return res.status(400).json({ success: false, message: 'Client missing due date' });
     }
 
     try {
-      console.log(`📨 Sending email to: ${client.email} (${client.name})`);
-      console.log(`Payment details: $${client.feeAmount} due on ${client.dueDate}`);
+      // console.log(`📨 Sending email to: ${client.email} (${client.name})`);
+      // console.log(`Payment details: $${client.feeAmount} due on ${client.dueDate}`);
       
       // Create HTML content for email
       const htmlContent = `
@@ -225,7 +225,7 @@ exports.sendSingleEmailReminder = async (req, res) => {
         html: htmlContent
       });
       
-      console.log(`✅ Email sent successfully to: ${client.email}`);
+      // console.log(`✅ Email sent successfully to: ${client.email}`);
     } catch (emailError) {
       console.error(`❌ Failed to send email to ${client.email}:`, emailError);
       return res.status(500).json({ 
@@ -235,7 +235,7 @@ exports.sendSingleEmailReminder = async (req, res) => {
       });
     }
 
-    console.log(`✅ Email sent successfully to: ${client.email}`);
+    // console.log(`✅ Email sent successfully to: ${client.email}`);
     return res.status(200).json({ 
       success: true, 
       message: 'Email reminder sent successfully',
