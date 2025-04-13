@@ -5,7 +5,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/yourusername/feealert?style=social)](https://github.com/coder-aadii/feealert)
 
 <div align="center">
-  <img src="docs/images/feealert-banner.png" alt="FeeAlert Banner" width="100%">
+  <img src="docs/images/feealert-banner.jpg" alt="FeeAlert Banner" width="100%">
   
   ### 💰 Never Miss a Payment – Automated Fee Reminders Made Simple
   
