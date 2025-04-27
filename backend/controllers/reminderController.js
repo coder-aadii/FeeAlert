@@ -17,7 +17,8 @@ const createReminderHistory = async (userId, client, reminderType, status, descr
         name: client.name,
         email: client.email,
         phone: client.phone,
-        feeDueDate: client.feeDueDate
+        feeDueDate: client.feeDueDate,
+        membershipStatus: client.membershipStatus
       },
       metadata
     });
@@ -42,6 +43,29 @@ const sendReminder = async (req, res) => {
         if (!client) {
           results.push({ clientId, status: 'failed', message: 'Client not found' });
           continue;
+        }
+
+        // Check if client has active membership status
+        if (client.membershipStatus !== 'Active') {
+          const description = `Reminder not sent: Client has ${client.membershipStatus} membership status`;
+          
+          // Create history entry for skipped reminder
+          await createReminderHistory(
+            req.user.id,
+            client,
+            reminderType,
+            'skipped',
+            description,
+            { reason: 'inactive_membership' }
+          );
+          
+          results.push({ 
+            clientId, 
+            status: 'skipped', 
+            message: description 
+          });
+          
+          continue; // Skip to next client
         }
 
         let status = 'pending';
@@ -106,7 +130,21 @@ const generateReminderMessage = (client) => {
   return `Dear ${client.name},\n\nThis is a reminder that your fee payment is due on ${dueDate}. Please ensure timely payment.\n\nThank you.`;
 };
 
+// Get clients eligible for reminders (active clients only)
+const getEligibleClients = async (req, res) => {
+  try {
+    const clients = await Client.find({ membershipStatus: 'Active' });
+    res.json(clients);
+  } catch (error) {
+    res.status(500).json({ 
+      message: 'Error fetching eligible clients', 
+      error: error.message 
+    });
+  }
+};
+
 module.exports = {
   sendReminder,
-  createReminderHistory
+  createReminderHistory,
+  getEligibleClients
 };

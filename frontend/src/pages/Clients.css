@@ -196,12 +196,31 @@
     opacity: 0.5;
 }
 
+.pagination-ellipsis {
+    display: inline-block;
+    margin: 0 5px;
+    color: #666;
+}
+
 .error-message {
     color: #dc3545;
     margin: 10px 0;
     padding: 10px;
     background-color: #f8d7da;
     border-radius: 4px;
+}
+
+.clients-info {
+    margin: 10px 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.no-clients-message {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
 }
 
 /* Dark theme support */
@@ -296,6 +315,143 @@
     color: #1976d2;
 }
 
+/* Dark theme support for client info */
+[data-theme='dark'] .clients-info {
+    color: #aaa;
+}
+
+[data-theme='dark'] .no-clients-message {
+    color: #aaa;
+}
+
+[data-theme='dark'] .pagination-ellipsis {
+    color: #aaa;
+}
+
+/* Toggle Switch Styles */
+.reminder-toggle,
+.status-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #4CAF50;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #4CAF50;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+input:disabled + .slider {
+    background-color: #e0e0e0;
+    cursor: not-allowed;
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.reminder-status,
+.membership-status {
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Reminder Indicator Styles */
+.reminder-indicator {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.reminder-indicator.active {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.reminder-indicator.inactive {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+/* Dark theme support for reminder toggle and indicator */
+[data-theme='dark'] .slider {
+    background-color: #555;
+}
+
+[data-theme='dark'] .reminder-indicator.active {
+    background-color: rgba(46, 125, 50, 0.2);
+    color: #81c784;
+}
+
+[data-theme='dark'] .reminder-indicator.inactive {
+    background-color: rgba(198, 40, 40, 0.2);
+    color: #e57373;
+}
+
+[data-theme='dark'] .slider:before {
+    background-color: #ddd;
+}
+
+[data-theme='dark'] input:checked + .slider {
+    background-color: #3d8b40;
+}
+
+[data-theme='dark'] input:focus + .slider {
+    box-shadow: 0 0 1px #3d8b40;
+}
+
+[data-theme='dark'] input:disabled + .slider {
+    background-color: #444;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .table {
@@ -333,5 +489,9 @@
     
     .download-pdf-button {
         order: 3;
+    }
+    
+    .reminder-toggle {
+        margin-top: 10px;
     }
 }

@@ -92,6 +92,11 @@ const clientSchema = new mongoose.Schema({
     type: String,
     enum: ['active', 'inactive', 'suspended'],
     default: 'active'
+  },
+  membershipStatus: {
+    type: String,
+    enum: ['Active', 'Inactive', 'Suspended'],
+    default: 'Active'
   }
 }, {
   timestamps: true
@@ -133,6 +138,16 @@ clientSchema.pre('save', function(next) {
   }
   next();
 });
+
+// Virtual property to determine if reminders should be sent
+// This is based on membership status
+clientSchema.virtual('shouldReceiveReminders').get(function() {
+  return this.membershipStatus === 'Active';
+});
+
+// When converting to JSON, include virtuals
+clientSchema.set('toJSON', { virtuals: true });
+clientSchema.set('toObject', { virtuals: true });
 
 const Client = mongoose.model("Client", clientSchema);
 

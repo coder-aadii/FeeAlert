@@ -11,7 +11,11 @@ router.route('/')
   .post(clientController.addClient);
 
 router.route('/:id')
+  .get(clientController.getClient)
   .put(clientController.updateClient)
   .delete(clientController.deleteClient);
+
+// Update client membership status specifically
+router.patch('/:id/membership-status', clientController.updateMembershipStatus);
 
 module.exports = router;
