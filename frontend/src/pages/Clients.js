@@ -14,7 +14,7 @@ const Clients = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [updateLoading, setUpdateLoading] = useState(false); // Loading state for status updates
-  const recordsPerPage = 10;
+  const recordsPerPage = 20;
 
   // Function to determine fee slot based on due date
   const getFeeSlot = (feeDueDate) => {
