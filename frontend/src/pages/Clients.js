@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -6,42 +6,64 @@ import './Clients.css';
 
 const Clients = () => {
   const [clients, setClients] = useState([]); // Current page clients
-  const [allClients, setAllClients] = useState([]); // All clients for search filtering
   const [loading, setLoading] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false); // Loading state for PDF generation
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
-  const [updateLoading, setUpdateLoading] = useState(false); // Loading state for status updates
+  const [updateLoading, setUpdateLoading] = useState({});
+  const [searchTimeout, setSearchTimeout] = useState(null);
   const recordsPerPage = 20;
 
+  // Create axios instance with auth header - memoized to prevent recreations
+  const getAuthAxios = useCallback(() => {
+    const token = localStorage.getItem('token');
+    return axios.create({
+      baseURL: process.env.REACT_APP_BACKEND_URL,
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+  }, []);
+
   // Function to determine fee slot based on due date
-  const getFeeSlot = (feeDueDate) => {
+  const getFeeSlot = useCallback((feeDueDate) => {
     if (!feeDueDate) return 'Not Set';
-    const day = new Date(feeDueDate).getDate();
-    
-    if (day >= 1 && day <= 10) {
-      return 'Slot 1 (Pay: 1st - 5th)';
-    } else if (day >= 11 && day <= 20) {
-      return 'Slot 2 (Pay: 15th - 20th)';
-    } else {
-      return 'Slot 3 (Pay: 25th - 30th)';
+    try {
+      const day = new Date(feeDueDate).getDate();
+      
+      if (day >= 1 && day <= 10) {
+        return 'Slot 1 (Pay: 1st - 5th)';
+      } else if (day >= 11 && day <= 20) {
+        return 'Slot 2 (Pay: 15th - 20th)';
+      } else {
+        return 'Slot 3 (Pay: 25th - 30th)';
+      }
+    } catch (error) {
+      console.error('Invalid date format:', feeDueDate);
+      return 'Not Set';
     }
-  };
+  }, []);
 
   // Function to format date
-  const formatDate = (date) => {
+  const formatDate = useCallback((date) => {
     if (!date) return 'Not Set';
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
+    try {
+      return new Date(date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (error) {
+      console.error('Invalid date format:', date);
+      return 'Not Set';
+    }
+  }, []);
 
   // Function to get status badge color
-  const getStatusColor = (status) => {
+  const getStatusColor = useCallback((status) => {
     switch (status?.toLowerCase()) {
       case 'active':
         return 'active';
@@ -52,144 +74,156 @@ const Clients = () => {
       default:
         return 'inactive';
     }
-  };
+  }, []);
 
-  // Function to fetch all clients (for search and filtering)
-  const fetchAllClients = async () => {
+  // Centralized error handler
+  const handleApiError = useCallback((error, defaultMessage) => {
+    console.error(`${defaultMessage}:`, error);
+    
+    if (error.response) {
+      // Handle specific HTTP error codes
+      if (error.response.status === 401) {
+        setError('Your session has expired. Please log in again.');
+        localStorage.removeItem('token');
+        // Redirect to login page could be added here
+      } else {
+        setError(`${defaultMessage}: ${error.response.data?.message || error.response.statusText}`);
+      }
+    } else if (error.request) {
+      setError('Network error. Please check your connection.');
+    } else {
+      setError(defaultMessage);
+    }
+  }, []);
+
+  // Function to fetch clients with pagination and search - memoized with useCallback
+  const fetchClients = useCallback(async (page = 1, search = '') => {
+    setLoading(true);
+    setError('');
+    
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/api/clients`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
+      const authAxios = getAuthAxios();
+      const response = await authAxios.get(
+        `/api/clients?page=${page}&limit=${recordsPerPage}&search=${encodeURIComponent(search)}`
       );
       
+      // Handle different API response formats
       if (response.data && response.data.clients) {
-        setAllClients(response.data.clients);
+        // Normalize client IDs to always use 'id'
+        const normalizedClients = response.data.clients.map(client => ({
+          ...client,
+          id: client.id || client._id
+        }));
+        
+        setClients(normalizedClients);
+        setTotalPages(response.data.totalPages || Math.ceil(response.data.totalCount / recordsPerPage));
+        setTotalCount(response.data.totalCount || response.data.clients.length);
       } else if (Array.isArray(response.data)) {
-        setAllClients(response.data);
+        // Normalize client IDs to always use 'id'
+        const normalizedClients = response.data.map(client => ({
+          ...client,
+          id: client.id || client._id
+        }));
+        
+        setClients(normalizedClients);
+        setTotalPages(Math.ceil(response.data.length / recordsPerPage));
+        setTotalCount(response.data.length);
       } else {
-        setAllClients([]);
+        setClients([]);
+        setTotalPages(0);
+        setTotalCount(0);
       }
     } catch (error) {
-      console.error('Error fetching all clients:', error);
-      setAllClients([]);
+      handleApiError(error, 'Error fetching clients');
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [getAuthAxios, handleApiError, recordsPerPage]);
 
-  // Function to handle search
-  const handleSearch = (e) => {
-    const searchValue = e.target.value.toLowerCase();
+  // Function to handle search with debounce
+  const handleSearch = useCallback((e) => {
+    const searchValue = e.target.value;
     setSearchTerm(searchValue);
-    setCurrentPage(1); // Reset to first page when search term changes
     
-    if (searchValue.trim() === '') {
-      // If search is empty, show all clients
-      applyPagination(allClients, 1);
-    } else {
-      // Filter clients based on search term
-      const filtered = allClients.filter(client => 
-        (client.name && client.name.toLowerCase().includes(searchValue)) ||
-        (client.email && client.email.toLowerCase().includes(searchValue)) ||
-        (client.phone && client.phone.toLowerCase().includes(searchValue))
-      );
-      applyPagination(filtered, 1);
+    // Clear any existing timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
     }
-  };
-
-  // Apply pagination to the filtered clients
-  const applyPagination = (clientsArray, page) => {
-    const startIndex = (page - 1) * recordsPerPage;
-    const endIndex = startIndex + recordsPerPage;
-    const paginatedClients = clientsArray.slice(startIndex, endIndex);
     
-    setClients(paginatedClients);
-    setTotalPages(Math.ceil(clientsArray.length / recordsPerPage));
-  };
+    // Set a new timeout to debounce the search
+    const timeoutId = setTimeout(() => {
+      setCurrentPage(1);
+      fetchClients(1, searchValue);
+    }, 300);
+    
+    setSearchTimeout(timeoutId);
+  }, [fetchClients, searchTimeout]);
 
   // Handle page change
-  const handlePageChange = (newPage) => {
+  const handlePageChange = useCallback((newPage) => {
     setCurrentPage(newPage);
-    
-    // Apply pagination based on current search term
-    if (searchTerm.trim() === '') {
-      applyPagination(allClients, newPage);
-    } else {
-      const filtered = allClients.filter(client => 
-        (client.name && client.name.toLowerCase().includes(searchTerm)) ||
-        (client.email && client.email.toLowerCase().includes(searchTerm)) ||
-        (client.phone && client.phone.toLowerCase().includes(searchTerm))
-      );
-      applyPagination(filtered, newPage);
-    }
-  };
+    fetchClients(newPage, searchTerm);
+  }, [fetchClients, searchTerm]);
 
   // Calculate the starting serial number for the current page
-  const getSerialNumber = (index) => {
+  const getSerialNumber = useCallback((index) => {
     return (currentPage - 1) * recordsPerPage + index + 1;
-  };
+  }, [currentPage, recordsPerPage]);
 
   // Function to toggle membership status (which controls reminders)
-  const toggleMembershipStatus = async (clientId, currentStatus) => {
+  const toggleMembershipStatus = useCallback(async (clientId, currentStatus) => {
+    // Prevent duplicate requests for the same client
+    if (updateLoading[clientId]) return;
+    
+    // Set loading state for this specific client
+    setUpdateLoading(prev => ({ ...prev, [clientId]: true }));
+    
     try {
-      setUpdateLoading(true);
-      const token = localStorage.getItem('token');
+      const authAxios = getAuthAxios();
       
       // Toggle between 'Active' and 'Inactive'
       const newStatus = currentStatus?.toLowerCase() === 'active' ? 'Inactive' : 'Active';
       
       // Use the dedicated membership-status endpoint
-      await axios.patch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/clients/${clientId}/membership-status`,
-        { status: newStatus }, // Note: The endpoint expects 'status' in the request body
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
+      await authAxios.patch(
+        `/api/clients/${clientId}/membership-status`,
+        { status: newStatus }
       );
       
-      // Update the client in both local states
-      const updatedClients = clients.map(client => {
-        if ((client.id || client._id) === clientId) {
-          return { ...client, membershipStatus: newStatus };
-        }
-        return client;
-      });
-      
-      const updatedAllClients = allClients.map(client => {
-        if ((client.id || client._id) === clientId) {
-          return { ...client, membershipStatus: newStatus };
-        }
-        return client;
-      });
-      
-      setClients(updatedClients);
-      setAllClients(updatedAllClients);
+      // Update the client in local state
+      setClients(prevClients => 
+        prevClients.map(client => {
+          if (client.id === clientId) {
+            return { ...client, membershipStatus: newStatus };
+          }
+          return client;
+        })
+      );
       
     } catch (error) {
-      console.error('Error updating membership status:', error);
-      alert('Failed to update membership status. Please try again.');
+      handleApiError(error, 'Failed to update membership status');
     } finally {
-      setUpdateLoading(false);
+      // Clear loading state for this specific client
+      setUpdateLoading(prev => ({ ...prev, [clientId]: false }));
     }
-  };
+  }, [getAuthAxios, handleApiError, updateLoading]);
 
-  const downloadPDF = async () => {
+  const downloadPDF = useCallback(async () => {
+    setPdfLoading(true);
+    
     try {
-      setPdfLoading(true);
+      const authAxios = getAuthAxios();
       
-      // Filter clients based on current search term
-      let clientsForPDF = allClients;
-      if (searchTerm.trim() !== '') {
-        clientsForPDF = allClients.filter(client => 
-          (client.name && client.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (client.email && client.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (client.phone && client.phone.toLowerCase().includes(searchTerm.toLowerCase()))
-        );
+      // Fetch all clients for PDF (or filtered by search)
+      const response = await authAxios.get(
+        `/api/clients?limit=1000&search=${encodeURIComponent(searchTerm)}`
+      );
+      
+      let clientsForPDF = [];
+      if (response.data && response.data.clients) {
+        clientsForPDF = response.data.clients;
+      } else if (Array.isArray(response.data)) {
+        clientsForPDF = response.data;
       }
       
       const doc = new jsPDF();
@@ -244,55 +278,153 @@ const Clients = () => {
       // Save the PDF
       doc.save('clients-list.pdf');
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Error generating PDF. Please try again.');
+      handleApiError(error, 'Error generating PDF');
     } finally {
       setPdfLoading(false);
     }
-  };
+  }, [formatDate, getFeeSlot, getAuthAxios, handleApiError, searchTerm]);
 
-  // Initial data fetch
+  // Initial data fetch - now with proper dependencies
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError('');
-      
-      try {
-        await fetchAllClients();
-        
-        // After fetching all clients, apply initial pagination
-        const token = localStorage.getItem('token');
-        const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/clients`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-        );
-        
-        let clientsData = [];
-        if (response.data && response.data.clients) {
-          clientsData = response.data.clients;
-        } else if (Array.isArray(response.data)) {
-          clientsData = response.data;
-        }
-        
-        applyPagination(clientsData, 1);
-        setAllClients(clientsData);
-      } catch (error) {
-        console.error('Error fetching clients:', error);
-        setError('Error fetching clients. Please try again.');
-        setClients([]);
-        setAllClients([]);
-        setTotalPages(0);
-      } finally {
-        setLoading(false);
+    fetchClients(1, '');
+    
+    // Cleanup function to clear any pending timeouts
+    return () => {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
       }
     };
+  }, [fetchClients, searchTimeout]);
+
+  // Memoize pagination buttons to prevent unnecessary re-renders
+  const paginationButtons = useMemo(() => {
+    if (totalPages <= 1) return null;
     
-    fetchData();
-  }, []);
+    return (
+      <div className="pagination">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1 || loading}
+          className="pagination-button"
+        >
+          Previous
+        </button>
+        
+        {/* Show limited page buttons with ellipsis for many pages */}
+        {totalPages <= 7 ? (
+          // If 7 or fewer pages, show all page buttons
+          [...Array(totalPages)].map((_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => handlePageChange(index + 1)}
+              disabled={loading}
+              className={`pagination-button ${currentPage === index + 1 ? 'active' : ''}`}
+            >
+              {index + 1}
+            </button>
+          ))
+        ) : (
+          // If more than 7 pages, show current page, first, last, and nearby pages
+          <>
+            {/* First page */}
+            <button
+              onClick={() => handlePageChange(1)}
+              disabled={loading}
+              className={`pagination-button ${currentPage === 1 ? 'active' : ''}`}
+            >
+              1
+            </button>
+            
+            {/* Ellipsis or second page */}
+            {currentPage > 3 && <span className="pagination-ellipsis">...</span>}
+            
+            {/* Pages around current page */}
+            {[...Array(5)].map((_, index) => {
+              const pageNum = Math.max(2, currentPage - 2) + index;
+              if (pageNum > 1 && pageNum < totalPages) {
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => handlePageChange(pageNum)}
+                    disabled={loading}
+                    className={`pagination-button ${currentPage === pageNum ? 'active' : ''}`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              }
+              return null;
+            }).filter(Boolean)}
+            
+            {/* Ellipsis or second-to-last page */}
+            {currentPage < totalPages - 2 && <span className="pagination-ellipsis">...</span>}
+            
+            {/* Last page */}
+            <button
+              onClick={() => handlePageChange(totalPages)}
+              disabled={loading}
+              className={`pagination-button ${currentPage === totalPages ? 'active' : ''}`}
+            >
+              {totalPages}
+            </button>
+          </>
+        )}
+        
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages || loading}
+          className="pagination-button"
+        >
+          Next
+        </button>
+      </div>
+    );
+  }, [currentPage, handlePageChange, loading, totalPages]);
+
+  // Memoize client rows to prevent unnecessary re-renders
+  const clientRows = useMemo(() => {
+    if (clients.length === 0) {
+      return (
+        <tr>
+          <td colSpan="8" className="no-clients-message">
+            {searchTerm.trim() !== '' ? 'No clients match your search criteria' : 'No clients found'}
+          </td>
+        </tr>
+      );
+    }
+
+    return clients.map((client, index) => (
+      <tr key={client.id}>
+        <td>{getSerialNumber(index)}</td>
+        <td>{client.name}</td>
+        <td>{client.email}</td>
+        <td>{client.phone}</td>
+        <td>{formatDate(client.feeDueDate)}</td>
+        <td>{getFeeSlot(client.feeDueDate)}</td>
+        <td>
+          <div className="status-toggle">
+            <label className="switch">
+              <input
+                type="checkbox"
+                checked={client.membershipStatus?.toLowerCase() === 'active'}
+                onChange={() => toggleMembershipStatus(client.id, client.membershipStatus)}
+                disabled={updateLoading[client.id]}
+              />
+              <span className="slider round"></span>
+            </label>
+            <span className={`status-badge ${getStatusColor(client.membershipStatus)}`}>
+              {client.membershipStatus || 'Inactive'}
+            </span>
+          </div>
+        </td>
+        <td>
+          <span className={`reminder-indicator ${client.membershipStatus?.toLowerCase() === 'active' ? 'active' : 'inactive'}`}>
+            {client.membershipStatus?.toLowerCase() === 'active' ? 'Yes' : 'No'}
+          </span>
+        </td>
+      </tr>
+    ));
+  }, [clients, formatDate, getFeeSlot, getSerialNumber, getStatusColor, searchTerm, toggleMembershipStatus, updateLoading]);
 
   return (
     <div className="clients-container">
@@ -320,15 +452,7 @@ const Clients = () => {
       {error && <p className="error-message">{error}</p>}
       
       <div className="clients-info">
-        {searchTerm.trim() !== '' ? (
-          <p>Found {allClients.filter(client => 
-            (client.name && client.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (client.email && client.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (client.phone && client.phone.toLowerCase().includes(searchTerm.toLowerCase()))
-          ).length} clients matching "{searchTerm}"</p>
-        ) : (
-          <p>Showing {clients.length} of {allClients.length} clients</p>
-        )}
+        <p>Showing {clients.length} of {totalCount} clients{searchTerm ? ` matching "${searchTerm}"` : ''}</p>
       </div>
       
       <div className="table-responsive">
@@ -346,125 +470,13 @@ const Clients = () => {
             </tr>
           </thead>
           <tbody>
-            {clients.length > 0 ? (
-              clients.map((client, index) => (
-                <tr key={client.id || client._id}>
-                  <td>{getSerialNumber(index)}</td>
-                  <td>{client.name}</td>
-                  <td>{client.email}</td>
-                  <td>{client.phone}</td>
-                  <td>{formatDate(client.feeDueDate)}</td>
-                  <td>{getFeeSlot(client.feeDueDate)}</td>
-                  <td>
-                    <div className="status-toggle">
-                      <label className="switch">
-                        <input
-                          type="checkbox"
-                          checked={client.membershipStatus?.toLowerCase() === 'active'}
-                          onChange={() => toggleMembershipStatus(client.id || client._id, client.membershipStatus)}
-                          disabled={updateLoading}
-                        />
-                        <span className="slider round"></span>
-                      </label>
-                      <span className={`status-badge ${getStatusColor(client.membershipStatus)}`}>
-                        {client.membershipStatus || 'Inactive'}
-                      </span>
-                    </div>
-                  </td>
-                  <td>
-                    <span className={`reminder-indicator ${client.membershipStatus?.toLowerCase() === 'active' ? 'active' : 'inactive'}`}>
-                      {client.membershipStatus?.toLowerCase() === 'active' ? 'Yes' : 'No'}
-                    </span>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="8" className="no-clients-message">
-                  {searchTerm.trim() !== '' ? 'No clients match your search criteria' : 'No clients found'}
-                </td>
-              </tr>
-            )}
+            {clientRows}
           </tbody>
         </table>
       </div>
       
       {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div className="pagination">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="pagination-button"
-          >
-            Previous
-          </button>
-          
-          {/* Show limited page buttons with ellipsis for many pages */}
-          {totalPages <= 7 ? (
-            // If 7 or fewer pages, show all page buttons
-            [...Array(totalPages)].map((_, index) => (
-              <button
-                key={index + 1}
-                onClick={() => handlePageChange(index + 1)}
-                className={`pagination-button ${currentPage === index + 1 ? 'active' : ''}`}
-              >
-                {index + 1}
-              </button>
-            ))
-          ) : (
-            // If more than 7 pages, show current page, first, last, and nearby pages
-            <>
-              {/* First page */}
-              <button
-                onClick={() => handlePageChange(1)}
-                className={`pagination-button ${currentPage === 1 ? 'active' : ''}`}
-              >
-                1
-              </button>
-              
-              {/* Ellipsis or second page */}
-              {currentPage > 3 && <span className="pagination-ellipsis">...</span>}
-              
-              {/* Pages around current page */}
-              {[...Array(5)].map((_, index) => {
-                const pageNum = Math.max(2, currentPage - 2) + index;
-                if (pageNum > 1 && pageNum < totalPages) {
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => handlePageChange(pageNum)}
-                      className={`pagination-button ${currentPage === pageNum ? 'active' : ''}`}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                }
-                return null;
-              }).filter(Boolean)}
-              
-              {/* Ellipsis or second-to-last page */}
-              {currentPage < totalPages - 2 && <span className="pagination-ellipsis">...</span>}
-              
-              {/* Last page */}
-              <button
-                onClick={() => handlePageChange(totalPages)}
-                className={`pagination-button ${currentPage === totalPages ? 'active' : ''}`}
-              >
-                {totalPages}
-              </button>
-            </>
-          )}
-          
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="pagination-button"
-          >
-            Next
-          </button>
-        </div>
-      )}
+      {paginationButtons}
     </div>
   );
 };

@@ -10,6 +10,7 @@ import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import SendReminder from './pages/SendReminder';
 import Clients from './pages/Clients';
+import AddClient from './pages/AddClient';
 import History from './pages/History';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
@@ -114,6 +115,15 @@ function AppContent() {
                 element={
                   <ProtectedRoute>
                     <Clients />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/clients/add"
+                element={
+                  <ProtectedRoute>
+                    <AddClient />
                   </ProtectedRoute>
                 }
               />

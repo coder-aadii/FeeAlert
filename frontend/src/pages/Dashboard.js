@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
@@ -9,7 +9,7 @@ const Dashboard = () => {
   const [stats, setStats] = useState({
     pendingPayments: 0,
     upcomingReminders: 0,
-    totalStudents: 0,
+    totalClients: 0,
     totalPaidThisMonth: 0
   });
   const [slotStats, setSlotStats] = useState({
@@ -21,23 +21,47 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const adminData = JSON.parse(localStorage.getItem('admin') || '{}');
-    setAdmin(adminData);
-    fetchDashboardData();
+  // Create axios instance with auth header
+  const getAuthAxios = useCallback(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Authentication token missing');
+    }
+    return axios.create({
+      baseURL: process.env.REACT_APP_BACKEND_URL,
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
   }, []);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
+      setError(null); // Reset error state
       
-      // Fetch students data from MongoDB
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/clients`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      const students = response.data;
+      const authAxios = getAuthAxios();
+      
+      // Fetch clients data from MongoDB
+      const response = await authAxios.get('/api/clients');
+      
+      // Handle different response structures
+      let clients = [];
+      if (response.data && Array.isArray(response.data)) {
+        clients = response.data;
+      } else if (response.data && Array.isArray(response.data.clients)) {
+        clients = response.data.clients;
+      } else {
+        console.error('Unexpected API response format:', response.data);
+        setError('Received unexpected data format from server');
+        setLoading(false);
+        return;
+      }
+      
+      // Log the first client to debug data structure
+      if (clients.length > 0) {
+        console.log('Sample client data:', clients[0]);
+      }
       
       // Calculate real statistics
       const now = new Date();
@@ -45,89 +69,132 @@ const Dashboard = () => {
       const currentYear = now.getFullYear();
       const currentDay = now.getDate();
 
-      // Calculate pending payments
-      const pendingPayments = students.filter(student => 
-        !student.lastPaymentDate || 
-        new Date(student.lastPaymentDate).getMonth() !== currentMonth
-      ).length;
-
-      // Calculate total paid this month
-      const paidThisMonth = students.filter(student => {
-        if (!student.lastPaymentDate) return false;
-        const paymentDate = new Date(student.lastPaymentDate);
-        return paymentDate.getMonth() === currentMonth && 
-               paymentDate.getFullYear() === currentYear;
+      // Calculate pending payments with null checks
+      const pendingPayments = clients.filter(client => {
+        if (!client) return false;
+        return !client.lastPaymentDate || 
+          new Date(client.lastPaymentDate).getMonth() !== currentMonth;
       }).length;
 
-      // Calculate slot statistics
+      // Calculate total paid this month with null checks
+      const paidThisMonth = clients.filter(client => {
+        if (!client || !client.lastPaymentDate) return false;
+        try {
+          const paymentDate = new Date(client.lastPaymentDate);
+          return paymentDate.getMonth() === currentMonth && 
+                 paymentDate.getFullYear() === currentYear;
+        } catch (err) {
+          console.error('Invalid date format for lastPaymentDate:', client.lastPaymentDate);
+          return false;
+        }
+      }).length;
+
+      // Calculate slot statistics with null checks
       const slots = {
         slot1: { total: 0, pending: 0 },
         slot2: { total: 0, pending: 0 },
         slot3: { total: 0, pending: 0 }
       };
 
-      students.forEach(student => {
-        const dueDate = new Date(student.feeDueDate).getDate();
-        let slot;
+      clients.forEach(client => {
+        if (!client || !client.feeDueDate) return;
         
-        if (dueDate >= 1 && dueDate <= 10) slot = 'slot1';
-        else if (dueDate >= 11 && dueDate <= 20) slot = 'slot2';
-        else slot = 'slot3';
+        try {
+          const dueDate = new Date(client.feeDueDate).getDate();
+          let slot;
+          
+          if (dueDate >= 1 && dueDate <= 10) slot = 'slot1';
+          else if (dueDate >= 11 && dueDate <= 20) slot = 'slot2';
+          else slot = 'slot3';
 
-        slots[slot].total++;
-        if (!student.lastPaymentDate || 
-            new Date(student.lastPaymentDate).getMonth() !== currentMonth) {
-          slots[slot].pending++;
+          slots[slot].total++;
+          if (!client.lastPaymentDate || 
+              new Date(client.lastPaymentDate).getMonth() !== currentMonth) {
+            slots[slot].pending++;
+          }
+        } catch (err) {
+          console.error('Invalid date format for feeDueDate:', client.feeDueDate);
         }
       });
 
-      // Calculate upcoming reminders based on current date
-      const upcomingReminders = students.filter(student => {
-        const dueDate = new Date(student.feeDueDate).getDate();
+      // Calculate upcoming reminders based on current date with null checks
+      const upcomingReminders = clients.filter(client => {
+        if (!client || !client.feeDueDate) return false;
         
-        // Check if student needs a reminder based on payment slots
-        if (currentDay <= 5 && dueDate <= 10) return true;
-        if (currentDay <= 15 && dueDate >= 11 && dueDate <= 20) return true;
-        if (currentDay <= 25 && dueDate >= 21) return true;
-        
-        return false;
+        try {
+          const dueDate = new Date(client.feeDueDate).getDate();
+          
+          // Check if client needs a reminder based on payment slots
+          if (currentDay <= 5 && dueDate <= 10) return true;
+          if (currentDay <= 15 && dueDate >= 11 && dueDate <= 20) return true;
+          if (currentDay <= 25 && dueDate >= 21) return true;
+          
+          return false;
+        } catch (err) {
+          console.error('Invalid date format for feeDueDate:', client.feeDueDate);
+          return false;
+        }
       }).length;
 
       // Update states with real data
       setStats({
         pendingPayments,
         upcomingReminders,
-        totalStudents: students.length,
+        totalClients: clients.length,
         totalPaidThisMonth: paidThisMonth
       });
       
       setSlotStats(slots);
 
-      // Create recent activity from student data
+      // Create recent activity from client data
       const activities = [];
       
-      // Add payment activities
-      const paymentActivities = students
-        .filter(student => student.lastPaymentDate)
-        .sort((a, b) => new Date(b.lastPaymentDate) - new Date(a.lastPaymentDate))
+      // Add payment activities with null checks
+      const paymentActivities = clients
+        .filter(client => client && client.lastPaymentDate)
+        .map(client => {
+          try {
+            return {
+              client,
+              date: new Date(client.lastPaymentDate)
+            };
+          } catch (err) {
+            console.error('Invalid date format for lastPaymentDate:', client.lastPaymentDate);
+            return null;
+          }
+        })
+        .filter(item => item !== null)
+        .sort((a, b) => b.date - a.date)
         .slice(0, 3)
-        .map(student => ({
+        .map(item => ({
           type: 'payment',
-          timestamp: new Date(student.lastPaymentDate),
-          description: `Payment received from ${student.name}`
+          timestamp: item.date,
+          description: `Payment received from ${item.client.name || 'Unknown'}`
         }));
       
       activities.push(...paymentActivities);
       
-      // Add any recent registrations
-      const recentRegistrations = students
-        .filter(student => student.registrationDate)
-        .sort((a, b) => new Date(b.registrationDate) - new Date(a.registrationDate))
+      // Add any recent registrations with null checks
+      const recentRegistrations = clients
+        .filter(client => client && client.registrationDate)
+        .map(client => {
+          try {
+            return {
+              client,
+              date: new Date(client.registrationDate)
+            };
+          } catch (err) {
+            console.error('Invalid date format for registrationDate:', client.registrationDate);
+            return null;
+          }
+        })
+        .filter(item => item !== null)
+        .sort((a, b) => b.date - a.date)
         .slice(0, 2)
-        .map(student => ({
+        .map(item => ({
           type: 'registration',
-          timestamp: new Date(student.registrationDate),
-          description: `New student registration: ${student.name}`
+          timestamp: item.date,
+          description: `New client registration: ${item.client.name || 'Unknown'}`
         }));
         
       activities.push(...recentRegistrations);
@@ -139,15 +206,43 @@ const Dashboard = () => {
       setLoading(false);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
-      setError('Failed to load dashboard data');
+      
+      // Provide more specific error messages
+      if (err.message === 'Authentication token missing') {
+        setError('Your session has expired. Please log in again.');
+        // Could redirect to login page here
+      } else if (err.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        if (err.response.status === 401) {
+          setError('Your session has expired. Please log in again.');
+          localStorage.removeItem('token'); // Clear invalid token
+          // Could redirect to login page here
+        } else {
+          setError(`Server error: ${err.response.status} - ${err.response.data?.message || 'Unknown error'}`);
+        }
+      } else if (err.request) {
+        // The request was made but no response was received
+        setError('Network error. Please check your connection and try again.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setError(`Error: ${err.message}`);
+      }
+      
       setLoading(false);
     }
-  };
+  }, [getAuthAxios]);
 
-  const handleQuickAction = (action) => {
+  useEffect(() => {
+    const adminData = JSON.parse(localStorage.getItem('admin') || '{}');
+    setAdmin(adminData);
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  const handleQuickAction = useCallback((action) => {
     switch(action) {
-      case 'addStudent':
-        navigate('/students/add');
+      case 'addClient':
+        navigate('/clients/add');
         break;
       case 'recordPayment':
         navigate('/payments/record');
@@ -155,16 +250,30 @@ const Dashboard = () => {
       case 'sendReminders':
         navigate('/send-reminder');
         break;
-      case 'viewStudents':
-        navigate('/students');
+      case 'viewClients':
+        navigate('/clients');
         break;
       default:
         break;
     }
-  };
+  }, [navigate]);
 
   if (loading) return <div className="dashboard-loading">Loading dashboard...</div>;
-  if (error) return <div className="dashboard-error">{error}</div>;
+  
+  if (error) {
+    return (
+      <div className="dashboard-error">
+        <h2>Error Loading Dashboard</h2>
+        <p>{error}</p>
+        <button 
+          onClick={fetchDashboardData} 
+          className="retry-button"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-container">
@@ -190,9 +299,9 @@ const Dashboard = () => {
           <p className="stat-description">Next 5 days</p>
         </div>
         <div className="stat-card total">
-          <h3>Total Students</h3>
-          <p className="stat-number">{stats.totalStudents}</p>
-          <p className="stat-description">Active students</p>
+          <h3>Total Clients</h3>
+          <p className="stat-number">{stats.totalClients}</p>
+          <p className="stat-description">Active clients</p>
         </div>
         <div className="stat-card paid">
           <h3>Paid This Month</h3>
@@ -227,7 +336,7 @@ const Dashboard = () => {
                 {recentActivity.map((activity, index) => (
                   <li key={index} className={`activity-item ${activity.type}`}>
                     <span className="activity-time">
-                      {new Date(activity.timestamp).toLocaleTimeString()}
+                      {activity.timestamp.toLocaleTimeString()}
                     </span>
                     <span className="activity-description">
                       {activity.description}
@@ -242,8 +351,8 @@ const Dashboard = () => {
 
           <div className="quick-actions">
             <h2>Quick Actions</h2>
-            <button onClick={() => handleQuickAction('addStudent')}>
-              Add New Student
+            <button onClick={() => handleQuickAction('addClient')}>
+              Add New Client
             </button>
             <button onClick={() => handleQuickAction('recordPayment')}>
               Record Payment
@@ -251,8 +360,8 @@ const Dashboard = () => {
             <button onClick={() => handleQuickAction('sendReminders')}>
               Send Reminders
             </button>
-            <button onClick={() => handleQuickAction('viewStudents')}>
-              View All Students
+            <button onClick={() => handleQuickAction('viewClients')}>
+              View All Clients
             </button>
           </div>
         </div>
